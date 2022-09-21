@@ -16,7 +16,11 @@ function App() {
             setStatus("finished");
           }
 
-          setTurn((turn) => turn + 1);
+          const has5Words = words[turn].every((e) => e !== "");
+
+          if (has5Words) {
+            setTurn((turn) => turn + 1);
+          }
 
           return;
         }
@@ -51,12 +55,24 @@ function App() {
     [turn, words, answer],
   );
 
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
+
+  useEffect(() => {
+    if (status == "finished") {
+      window.removeEventListener("keydown", handleKeyDown);
+    }
+  }, [status, handleKeyDown]);
+
   return (
     <main className="board">
       {words.map((word, wordIndex) => (
         <section className="word">
           {word.map((letter, letterIndex) => {
-            const isCorrect = false;
+            const isCorrect = letter && wordIndex < turn && answer.charAt(letterIndex) === letter;
             const isPresent =
               letter &&
               wordIndex < turn &&

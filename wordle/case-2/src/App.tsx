@@ -7,7 +7,7 @@ function App() {
   const [isLoading, toggleLoading] = useState<boolean>(true);
   const [turn, setTurn] = useState<number>(0);
   const [status, setStatus] = useState<"playing" | "finished">("playing");
-  const [words, setWords] = useState<string[][]>(
+  const [words, setWords] = useState<string[][]>(() =>
     Array.from({length: 6}, () => new Array(5).fill("")),
   );
 
@@ -73,6 +73,8 @@ function App() {
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown]);
 
   if (isLoading) return "Cargando...";
