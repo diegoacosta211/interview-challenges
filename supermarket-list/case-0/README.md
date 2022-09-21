@@ -1,10 +1,10 @@
 # Ejercicios de entrevista
 
 ## Nivel 1
-- [ ] Hay un warning en la consola
+- [X] Hay un warning en la consola
 
 ## Nivel 2
-- [ ] La aplicación crashea al iniciar
+- [X] La aplicación crashea al iniciar
 
 ## Nivel 3
 - [ ] Nuestra función de eliminar no está implementada
