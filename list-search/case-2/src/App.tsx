@@ -1,6 +1,6 @@
 import type {Product} from "./types";
 
-import {useEffect, useState} from "react";
+import {memo, useEffect, useState} from "react";
 
 import api from "./api";
 
@@ -30,13 +30,52 @@ function Recommended() {
   );
 }
 
+const MemoizedRecommended = memo(Recommended);
+
+const debounce = (func: () => void, timeout = 300) => {
+  let timer: number;
+  return (...args: any) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => { func.apply(this, args); }, timeout)
+  }
+}
+
+type Fav = {
+  [k: string]: boolean
+}
+
 function App() {
-  const [products, setProducts] = useState<Product[]>([]);
   const [query, setQuery] = useState<string>("");
+  const [favs, setFavs] = useState(() => JSON.parse(localStorage.getItem("favs") || "{}") || []);
+  // const [favs, setFavs] = useState({});
+  const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    api.search(query).then(setProducts);
+    console.log(favs);
+    const debouncedSearch = debounce(() => api.search(query).then(products => {
+      setProducts(products.map(product => ({ ...product, fav: favs.find((f: number) => f == product.id) })));
+    }), 800);
+    debouncedSearch();
   }, [query]);
+
+  useEffect(() => {
+    localStorage.setItem("favs", JSON.stringify(favs));
+    console.log(favs);
+    setProducts(products.map(product => ({ ...product, fav: favs.find((f: number) => f == product.id) })));
+  }, [favs]);
+
+  const handleFav = (pId: number) => {
+    const favsCopy = [...favs];
+    const favIndex = favsCopy.findIndex(f => f == pId);
+    if (favIndex != -1) {
+      console.log(favIndex, 'existe')
+      favsCopy.splice(favIndex, 1);
+    } else {
+      console.log(favIndex, 'no existe')
+      favsCopy.push(pId);
+    }
+    setFavs(favsCopy);
+  }
 
   return (
     <main>
@@ -44,7 +83,7 @@ function App() {
       <input name="text" placeholder="tv" type="text" onChange={(e) => setQuery(e.target.value)} />
       <ul>
         {products.map((product) => (
-          <li key={product.id}>
+          <li key={product.id} onClick={() => handleFav(product.id)} className={product.fav ? 'fav' : ''}>
             <h4>{product.title}</h4>
             <p>{product.description}</p>
             <span>$ {product.price}</span>
@@ -52,7 +91,7 @@ function App() {
         ))}
       </ul>
       <hr />
-      <Recommended />
+      <MemoizedRecommended />
     </main>
   );
 }

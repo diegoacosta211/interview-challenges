@@ -35,6 +35,7 @@ const PRODUCTS: Product[] = [
 
 const api = {
   search: (query?: string): Promise<Product[]> => {
+    console.log(query);
     let results = PRODUCTS;
 
     if (query) {

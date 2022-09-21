@@ -4,4 +4,5 @@ export interface Pokemon {
   description: string;
   image: string;
   price: number;
+  fav?: boolean;
 }
