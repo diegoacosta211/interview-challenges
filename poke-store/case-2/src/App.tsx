@@ -19,20 +19,12 @@ function App() {
     return Object.values(cart).reduce((totalItems, cartItem) => totalItems + cartItem.qty, 0);
   }, [cart]);
 
-  const handleAddCart = (pokemon: Pokemon) => {
-    setCart((cart) => {
-      const newCart = Object.assign({}, cart);
-
-      newCart[pokemon.id] = {
-        pokemon,
-        qty: 1,
-      };
-
-      localStorage.setItem("pokemon-cart", JSON.stringify(newCart));
-
-      return newCart;
-    });
-  };
+  const getCartTotal = useCallback(() => {
+    return Object.values(cart).reduce(
+      (total, cartItem) => total + cartItem.pokemon.price * cartItem.qty,
+      0,
+    );
+  }, [cart]);
 
   const handleIncrement = (pokemon: Pokemon) => {
     setCart((cart) => {
@@ -40,7 +32,7 @@ function App() {
 
       newCart[pokemon.id] = {
         pokemon,
-        qty: newCart[pokemon.id].qty + 1,
+        qty: cart[pokemon.id] ? cart[pokemon.id].qty + 1 : 1,
       };
 
       localStorage.setItem("pokemon-cart", JSON.stringify(newCart));
@@ -76,29 +68,48 @@ function App() {
           <article key={pokemon.id}>
             <img className="nes-container" src={pokemon.image} />
             <div>
-              <p>{pokemon.name}</p>
+              <p>
+                {pokemon.name} ${pokemon.price}
+              </p>
               <p>{pokemon.description}</p>
             </div>
             {!cart[pokemon.id] || cart[pokemon.id].qty == 0 ? (
-              <button className="nes-btn" onClick={() => handleAddCart(pokemon)}>
+              <button className="nes-btn" onClick={() => handleIncrement(pokemon)}>
                 Agregar
               </button>
             ) : (
-              <>
-                <button className="nes-btn" onClick={() => handleDecrement(pokemon)}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  flexDirection: "row",
+                  height: "auto",
+                }}
+              >
+                <button
+                  className="nes-btn"
+                  style={{flexGrow: 1}}
+                  onClick={() => handleDecrement(pokemon)}
+                >
                   -
                 </button>
-                {cart[pokemon.id].qty}
-                <button className="nes-btn" onClick={() => handleIncrement(pokemon)}>
+                <div style={{flexGrow: 1, textAlign: "center"}}>{cart[pokemon.id].qty}</div>
+                <button
+                  className="nes-btn"
+                  style={{flexGrow: 1}}
+                  onClick={() => handleIncrement(pokemon)}
+                >
                   +
                 </button>
-              </>
+              </div>
             )}
           </article>
         ))}
       </section>
       <aside>
-        <button className="nes-btn is-primary">{getCartTotalItems()} items (total $0)</button>
+        <button className="nes-btn is-primary">
+          {getCartTotalItems()} items (total ${getCartTotal()})
+        </button>
       </aside>
     </>
   );
