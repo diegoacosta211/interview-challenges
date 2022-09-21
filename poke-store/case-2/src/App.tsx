@@ -1,6 +1,6 @@
 import type {Pokemon} from "./types";
 
-import {useCallback, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 
 import {POKEMONS} from "./constants";
 import PokemonCard from "./PokemonCard";
@@ -35,8 +35,6 @@ function App() {
         qty: cart[pokemon.id] ? cart[pokemon.id].qty + 1 : 1,
       };
 
-      localStorage.setItem("pokemon-cart", JSON.stringify(newCart));
-
       return newCart;
     });
   };
@@ -50,11 +48,13 @@ function App() {
         qty: newCart[pokemon.id].qty - 1,
       };
 
-      localStorage.setItem("pokemon-cart", JSON.stringify(newCart));
-
       return newCart;
     });
   };
+
+  useEffect(() => {
+    localStorage.setItem("pokemon-cart", JSON.stringify(cart));
+  }, [cart]);
 
   return (
     <>
